@@ -5,7 +5,7 @@
  */
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import mongoose from 'mongoose'
-import { buildApp } from '../server/app'
+import { buildApp } from '../server/app.js'
 
 const app = buildApp()
 let connection: Promise<typeof mongoose> | null = null

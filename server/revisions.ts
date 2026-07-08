@@ -1,4 +1,4 @@
-import { Revision } from './models'
+import { Revision } from './models.js'
 
 /**
  * Serialización determinista (claves ordenadas) para comparar snapshots:

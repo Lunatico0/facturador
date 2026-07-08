@@ -1,9 +1,9 @@
 import express, { Router } from 'express'
 import type { Express, NextFunction, Request, Response } from 'express'
 import type { Model } from 'mongoose'
-import { authRouter, requireSession } from './auth'
-import { Client, Invoice, Profile, Quote, Revision } from './models'
-import { contentChanged, recordRevision } from './revisions'
+import { authRouter, requireSession } from './auth.js'
+import { Client, Invoice, Profile, Quote, Revision } from './models.js'
+import { contentChanged, recordRevision } from './revisions.js'
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

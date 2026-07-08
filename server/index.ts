@@ -1,6 +1,6 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
-import { buildApp } from './app'
+import { buildApp } from './app.js'
 
 const uri = process.env.MONGO_URI
 if (!uri) {

@@ -3,7 +3,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server'
 import mongoose from 'mongoose'
 import request from 'supertest'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { buildApp } from './app'
+import { buildApp } from './app.js'
 
 let mongod: MongoMemoryServer
 let app: Express
