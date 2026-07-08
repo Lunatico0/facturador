@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { api } from '../data/api'
+import type { FormEvent } from 'react'
+import { api, setToken } from '../data/api'
 import { exportBackup, importBackup } from '../data/backup'
 import { defaultProfile } from '../data/factories'
 import { useAutosave } from '../lib/hooks'
@@ -143,6 +144,8 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      <SecuritySection />
+
       <section className="card p-6">
         <h2 className="mb-4 text-sm font-bold tracking-wide text-muted uppercase">Respaldo de datos</h2>
         <p className="mb-4 text-sm text-muted">
@@ -169,5 +172,66 @@ export default function SettingsPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+function SecuritySection() {
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  async function submit(e: FormEvent) {
+    e.preventDefault()
+    if (busy) return
+    if (next !== confirm) {
+      setMessage({ text: 'La confirmación no coincide con la password nueva.', ok: false })
+      return
+    }
+    setBusy(true)
+    try {
+      const { token } = await api.auth.changePassword(current, next)
+      setToken(token)
+      setCurrent('')
+      setNext('')
+      setConfirm('')
+      setMessage({ text: 'Password actualizada. Todas las demás sesiones fueron cerradas.', ok: true })
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : 'No se pudo cambiar la password.', ok: false })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="card mb-6 p-6">
+      <h2 className="mb-4 text-sm font-bold tracking-wide text-muted uppercase">Seguridad</h2>
+      <p className="mb-4 text-sm text-muted">
+        Cambiá la password cuando quieras o ante cualquier sospecha de filtración: al cambiarla se cierran todas las
+        sesiones abiertas en otros dispositivos.
+      </p>
+      <form onSubmit={submit} className="grid max-w-2xl gap-4 sm:grid-cols-3">
+        <Field label="Password actual">
+          <input type="password" className="inp" value={current} onChange={(e) => setCurrent(e.target.value)} />
+        </Field>
+        <Field label="Password nueva">
+          <input type="password" className="inp" value={next} onChange={(e) => setNext(e.target.value)} />
+        </Field>
+        <Field label="Confirmar nueva">
+          <input type="password" className="inp" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        </Field>
+        <div className="sm:col-span-3">
+          <button type="submit" className="btn btn-primary" disabled={busy || !current || !next || !confirm}>
+            {busy ? 'Cambiando…' : 'Cambiar password'}
+          </button>
+          {message && (
+            <span className={`ml-3 text-sm font-semibold ${message.ok ? 'text-brand' : 'text-danger'}`}>
+              {message.text}
+            </span>
+          )}
+        </div>
+      </form>
+    </section>
   )
 }

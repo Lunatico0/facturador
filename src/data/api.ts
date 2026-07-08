@@ -1,10 +1,30 @@
 import type { BusinessProfile, Client, Invoice, Quote, Revision } from '../domain/types'
 
+const TOKEN_KEY = 'cotizador-token'
+
+export function getToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function setToken(token: string | null): void {
+  if (token) localStorage.setItem(TOKEN_KEY, token)
+  else localStorage.removeItem(TOKEN_KEY)
+}
+
 async function http<T>(url: string, options?: RequestInit): Promise<T> {
+  const token = getToken()
   const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
     ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options?.headers,
+    },
   })
+  if (res.status === 401 && url !== '/api/auth/login') {
+    setToken(null)
+    window.dispatchEvent(new Event('auth:expired'))
+  }
   if (!res.ok) {
     const body = await res.json().catch(() => null)
     throw new Error((body as { error?: string } | null)?.error ?? `Error HTTP ${res.status}`)
@@ -23,6 +43,16 @@ function collection<T extends { id: string }>(name: string) {
 }
 
 export const api = {
+  auth: {
+    login: (password: string) =>
+      http<{ token: string }>('/api/auth/login', { method: 'POST', body: JSON.stringify({ password }) }),
+    logout: () => http<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
+    changePassword: (currentPassword: string, newPassword: string) =>
+      http<{ token: string }>('/api/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      }),
+  },
   profile: {
     get: () => http<BusinessProfile | null>('/api/profile'),
     save: (profile: BusinessProfile) =>

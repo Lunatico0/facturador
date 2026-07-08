@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react'
 import { Navigate, NavLink, Route, Routes } from 'react-router-dom'
+import { api, getToken, setToken } from './data/api'
 import ClientsPage from './pages/ClientsPage'
 import InvoiceEditorPage from './pages/InvoiceEditorPage'
 import InvoicesPage from './pages/InvoicesPage'
+import LoginPage from './pages/LoginPage'
 import QuoteEditorPage from './pages/QuoteEditorPage'
 import QuotesPage from './pages/QuotesPage'
 import SettingsPage from './pages/SettingsPage'
@@ -14,6 +17,22 @@ const navItems = [
 ]
 
 export default function App() {
+  const [authed, setAuthed] = useState(() => Boolean(getToken()))
+
+  useEffect(() => {
+    const onExpired = () => setAuthed(false)
+    window.addEventListener('auth:expired', onExpired)
+    return () => window.removeEventListener('auth:expired', onExpired)
+  }, [])
+
+  async function logout() {
+    await api.auth.logout().catch(() => {})
+    setToken(null)
+    setAuthed(false)
+  }
+
+  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />
+
   return (
     <div className="flex min-h-screen">
       <aside className="no-print fixed inset-y-0 left-0 z-10 flex w-56 flex-col border-r border-line bg-white">
@@ -37,9 +56,14 @@ export default function App() {
             </NavLink>
           ))}
         </nav>
-        <p className="mt-auto px-5 py-4 text-[11px] leading-snug text-muted">
-          Datos en MongoDB con historial de cambios. Backups desde Configuración.
-        </p>
+        <div className="mt-auto flex flex-col gap-3 px-5 py-4">
+          <button type="button" className="btn btn-mini" onClick={logout}>
+            Cerrar sesión
+          </button>
+          <p className="text-[11px] leading-snug text-muted">
+            Datos en MongoDB con historial de cambios. Backups desde Configuración.
+          </p>
+        </div>
       </aside>
 
       <main className="ml-56 min-w-0 flex-1 px-8 py-8 print:m-0 print:p-0">

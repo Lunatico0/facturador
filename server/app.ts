@@ -1,6 +1,7 @@
 import express, { Router } from 'express'
 import type { Express, NextFunction, Request, Response } from 'express'
 import type { Model } from 'mongoose'
+import { authRouter, requireSession } from './auth'
 import { Client, Invoice, Profile, Quote, Revision } from './models'
 import { contentChanged, recordRevision } from './revisions'
 
@@ -54,6 +55,10 @@ function crudRouter(model: Model<any>, entity: string): Router {
 export function buildApp(): Express {
   const app = express()
   app.use(express.json({ limit: '5mb' }))
+
+  app.use('/api/auth', authRouter())
+  // Todo lo que sigue exige sesión válida
+  app.use('/api', requireSession)
 
   app.get('/api/profile', async (_req, res) => {
     const profile = await Profile.findOne({ id: 'default' })

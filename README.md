@@ -4,7 +4,7 @@ App para cotizar proyectos freelance y facturar. Frontend React + Vite; backend 
 
 ## Setup
 
-1. Crear `.env` en la raíz (o copiar `.env.example` si existe) con:
+1. Crear `.env` en la raíz con:
 
 ```
 MONGO_URI=mongodb://localhost:27017/cotizador
@@ -12,6 +12,22 @@ PORT=4000
 ```
 
 2. `npm install` y `npm run dev` (levanta web + API juntos).
+3. Entrar con la password inicial **1234** y cambiarla YA en Configuración → Seguridad.
+
+## Login y seguridad
+
+- Toda la API exige sesión (token Bearer). El login inicial es con la password `1234`, hasheada con scrypt — cambiala en el primer uso.
+- Cambiar la password revoca **todas** las sesiones abiertas (útil ante sospecha de filtración).
+- Las sesiones expiran a los 30 días (TTL en Mongo).
+
+## Deploy en Vercel
+
+1. Importar el repo `Lunatico0/facturador` en Vercel (framework: Vite, detectado solo).
+2. En Settings → Environment Variables agregar `MONGO_URI` (tiene que ser un Mongo accesible desde internet, ej. Atlas — localhost no sirve).
+3. Deploy. La API corre como función serverless (`api/index.ts`); el frontend es estático.
+4. Primer login con `1234` → cambiar la password inmediatamente.
+
+Nota: los dominios `.vercel.app` solo admiten un nivel de subdominio — `invoice.codebypittana.vercel.app` no es posible. Opciones: nombre de proyecto propio (`invoice-codebypittana.vercel.app`) o dominio custom (`invoice.codebypittana.dev`).
 
 ## Funcionalidades
 
