@@ -1,0 +1,81 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-brand: #0e5f55;
+  --color-brand-dark: #0b4c44;
+  --color-brand-soft: #e4efec;
+  --color-ink: #17211e;
+  --color-muted: #5e6b67;
+  --color-line: #dee4e1;
+  --color-paper: #f4f6f5;
+  --color-amber: #96660d;
+  --color-amber-soft: #f7eeda;
+  --color-danger: #a8431e;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-ink antialiased;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  .inp {
+    @apply w-full rounded-md border border-line bg-white px-2.5 py-1.5 text-sm text-ink placeholder:text-muted/50;
+    @apply focus:border-brand focus:ring-2 focus:ring-brand/15 focus:outline-none;
+  }
+  .inp-num {
+    @apply text-right tabular-nums;
+    font-family: var(--font-mono);
+  }
+  .lbl {
+    @apply mb-1 block text-xs font-semibold tracking-wide text-muted;
+  }
+  .btn {
+    @apply cursor-pointer rounded-md border border-line bg-white px-3.5 py-2 text-sm font-semibold text-ink transition-colors;
+    @apply hover:border-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand;
+  }
+  .btn-primary {
+    @apply border-brand bg-brand text-white hover:bg-brand-dark;
+  }
+  .btn-danger {
+    @apply text-danger hover:border-danger;
+  }
+  .btn-mini {
+    @apply px-2.5 py-1 text-xs;
+  }
+  .card {
+    @apply rounded-lg border border-line bg-white;
+  }
+}
+
+/* Impresión: solo el documento sale al papel */
+@page {
+  size: A4;
+  margin: 14mm;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #print-root,
+  #print-root * {
+    visibility: visible;
+  }
+  #print-root {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
